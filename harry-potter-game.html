@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧙 Harry Potter's Potion Duel!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap');
+
+  :root {
+    --gold: #f5c842;
+    --dark-gold: #c8941a;
+    --purple: #3d0066;
+    --dark-purple: #1a0030;
+    --green: #00ff88;
+    --red: #ff3333;
+    --blue: #4488ff;
+    --parchment: #f5e6c8;
+    --cauldron: #2a2a2a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: linear-gradient(160deg, #0a001a 0%, #1a0030 40%, #0d0020 100%);
+    min-height: 100vh;
+    font-family: 'Lato', sans-serif;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, white, transparent),
+      radial-gradient(1px 1px at 25% 40%, white, transparent),
+      radial-gradient(2px 2px at 40% 8%, #f5c842, transparent),
+      radial-gradient(1px 1px at 55% 25%, white, transparent),
+      radial-gradient(1px 1px at 70% 60%, white, transparent),
+      radial-gradient(2px 2px at 85% 10%, white, transparent),
+      radial-gradient(1px 1px at 92% 45%, #aabbff, transparent),
+      radial-gradient(1px 1px at 15% 75%, white, transparent),
+      radial-gradient(1px 1px at 30% 90%, #f5c842, transparent),
+      radial-gradient(2px 2px at 60% 80%, white, transparent),
+      radial-gradient(1px 1px at 80% 88%, white, transparent),
+      radial-gradient(1px 1px at 45% 55%, white, transparent),
+      radial-gradient(1px 1px at 3% 50%, white, transparent),
+      radial-gradient(1px 1px at 97% 70%, #aabbff, transparent);
+    pointer-events: none;
+    z-index: 0;
+    animation: twinkle 4s infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  .game-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 15px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 15px 0 10px;
+    position: relative;
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(245,200,66,0.7), 0 0 40px rgba(245,200,66,0.3);
+    letter-spacing: 3px;
+  }
+
+  .header p {
+    color: #ccaaff;
+    font-size: 1rem;
+    margin-top: 4px;
+  }
+
+  .hp-bar { margin-top: 8px; }
+  .hp-bar span { font-family: 'Cinzel', serif; color: var(--gold); font-size: 0.85rem; }
+  .bar-bg { background: rgba(255,255,255,0.15); border-radius: 20px; height: 18px; width: 220px; margin: 4px auto; overflow: hidden; border: 2px solid rgba(245,200,66,0.4); }
+  .bar-fill { height: 100%; border-radius: 20px; transition: width 0.8s ease; background: linear-gradient(90deg, #ff3333, #ff6600); }
+
+  /* SCORE */
+  .score-badge {
+    position: absolute;
+    top: 10px; right: 0;
+    background: rgba(245,200,66,0.15);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* MAIN LAYOUT */
+  .game-area {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 15px;
+    margin-top: 10px;
+    align-items: start;
+  }
+
+  /* PANEL styles */
+  .panel {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(245,200,66,0.25);
+    border-radius: 16px;
+    padding: 14px;
+    backdrop-filter: blur(4px);
+  }
+
+  .panel h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* POTIONS SHELF */
+  .potions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .potion-btn {
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 10px 6px;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .potion-btn:hover { transform: translateY(-3px) scale(1.04); }
+  .potion-btn.selected { border-color: var(--gold); background: rgba(245,200,66,0.12); }
+
+  .potion-emoji { font-size: 2.6rem; display: block; }
+  .potion-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-top: 4px;
+    color: #eee;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .potion-desc { font-size: 0.65rem; color: #aaa; margin-top: 2px; }
+  .potion-count {
+    position: absolute;
+    top: 4px; right: 6px;
+    background: var(--gold);
+    color: #000;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* CAULDRON AREA */
+  .cauldron-section { text-align: center; }
+
+  .cauldron-container {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+  }
+
+  .cauldron-svg {
+    width: 170px;
+    height: 150px;
+    filter: drop-shadow(0 0 15px rgba(0,255,100,0.3));
+    cursor: pointer;
+    transition: filter 0.3s;
+  }
+  .cauldron-svg:hover { filter: drop-shadow(0 0 25px rgba(0,255,100,0.6)); }
+
+  .cauldron-liquid {
+    transition: fill 0.8s ease;
+  }
+
+  .bubbles {
+    position: absolute;
+    top: 30px; left: 0; right: 0;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: bubble-rise 2s infinite;
+  }
+
+  @keyframes bubble-rise {
+    0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+    100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+  }
+
+  /* Cauldron ingredients list */
+  .ingredients-list {
+    min-height: 50px;
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+  }
+
+  .ingredient-tag {
+    display: inline-block;
+    background: rgba(245,200,66,0.2);
+    border: 1px solid rgba(245,200,66,0.4);
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin: 2px;
+    font-size: 0.72rem;
+    color: var(--gold);
+  }
+
+  .brew-btn {
+    background: linear-gradient(135deg, #6600aa, #9900ff);
+    border: 2px solid var(--gold);
+    color: white;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 30px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    width: 100%;
+    margin: 8px 0;
+    transition: all 0.2s;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    box-shadow: 0 0 20px rgba(150,0,255,0.4);
+  }
+
+  .brew-btn:hover:not(:disabled) {
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(150,0,255,0.7);
+  }
+
+  .brew-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .cast-btn {
+    background: linear-gradient(135deg, #aa0000, #ff3300);
+    border: 2px solid #ff6600;
+    color: white;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 30px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    width: 100%;
+    margin: 4px 0;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(255,50,0,0.4);
+  }
+
+  .cast-btn:hover:not(:disabled) {
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(255,50,0,0.7);
+  }
+  .cast-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .spell-result {
+    min-height: 36px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: #ccaaff;
+    text-align: center;
+    padding: 6px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    margin-top: 6px;
+  }
+
+  /* VOLDEMORT */
+  .voldemort-section { text-align: center; position: relative; }
+
+  .voldemort-display {
+    position: relative;
+    width: 180px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .voldemort-body {
+    font-size: 5rem;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 10px rgba(100,0,200,0.8));
+    transition: all 0.3s;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .voldemort-display.hit .voldemort-body {
+    animation: hit-shake 0.5s ease;
+  }
+  .voldemort-display.frozen .voldemort-body {
+    animation: none !important;
+    filter: drop-shadow(0 0 20px rgba(0,150,255,0.9)) !important;
+  }
+  .voldemort-display.confused .voldemort-body {
+    animation: spin-confused 1s ease !important;
+  }
+  .voldemort-display.dancing .voldemort-body {
+    animation: dance 0.5s infinite alternate !important;
+  }
+  .voldemort-display.shrunk .voldemort-body {
+    font-size: 2.5rem !important;
+    animation: none !important;
+  }
+  .voldemort-display.burned .voldemort-body {
+    animation: none !important;
+    filter: drop-shadow(0 0 20px rgba(255,100,0,0.9)) !important;
+  }
+
+  @keyframes hit-shake {
+    0%,100% { transform: translate(-50%,-50%); }
+    20% { transform: translate(-60%,-50%) rotate(-10deg); }
+    40% { transform: translate(-40%,-50%) rotate(10deg); }
+    60% { transform: translate(-55%,-50%) rotate(-5deg); }
+    80% { transform: translate(-45%,-50%) rotate(5deg); }
+  }
+
+  @keyframes spin-confused {
+    0% { transform: translate(-50%,-50%) rotate(0deg); }
+    100% { transform: translate(-50%,-50%) rotate(720deg); }
+  }
+
+  @keyframes dance {
+    0% { transform: translate(-50%,-50%) rotate(-15deg) scale(1); }
+    100% { transform: translate(-50%,-50%) rotate(15deg) scale(1.1); }
+  }
+
+  .effect-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .effect-text {
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+    text-shadow: 0 0 10px currentColor;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  @keyframes float-up {
+    0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+  }
+
+  /* HP bar container */
+  .voldemort-hp {
+    margin: 10px 0;
+  }
+
+  .voldemort-hp .bar-bg {
+    width: 100%;
+  }
+
+  /* SPELLS COMPENDIUM */
+  .known-spells {
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: #aaa;
+    text-align: left;
+  }
+
+  .spell-hint {
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .spell-hint:last-child { border-bottom: none; }
+
+  /* PARTICLES */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 100;
+    animation: particle-fly 1s ease-out forwards;
+  }
+
+  @keyframes particle-fly {
+    0% { transform: scale(1) translate(0, 0); opacity: 1; }
+    100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+
+  /* MESSAGES */
+  .message-bar {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    padding: 10px;
+    min-height: 44px;
+    text-shadow: 0 0 10px rgba(245,200,66,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* WIN/LOSE overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .overlay.active { display: flex; }
+
+  .overlay h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(245,200,66,0.8);
+    margin-bottom: 16px;
+    animation: pulse-glow 1s infinite alternate;
+  }
+
+  @keyframes pulse-glow {
+    0% { text-shadow: 0 0 20px rgba(245,200,66,0.6); }
+    100% { text-shadow: 0 0 50px rgba(245,200,66,1), 0 0 80px rgba(245,200,66,0.5); }
+  }
+
+  .overlay p { font-size: 1.2rem; color: #ccc; margin-bottom: 24px; }
+
+  .restart-btn {
+    background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+    color: #000;
+    border: none;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 30px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform 0.2s;
+  }
+  .restart-btn:hover { transform: scale(1.08); }
+
+  /* Brewing animation */
+  @keyframes brew-pulse {
+    0%,100% { filter: drop-shadow(0 0 15px rgba(0,255,100,0.3)); }
+    50% { filter: drop-shadow(0 0 40px rgba(200,100,255,0.9)); }
+  }
+
+  .brewing .cauldron-svg {
+    animation: brew-pulse 0.4s infinite;
+  }
+
+  /* Floating numbers */
+  .floating-dmg {
+    position: absolute;
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: 1.8rem;
+    pointer-events: none;
+    animation: float-dmg 1.2s ease-out forwards;
+    z-index: 50;
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  @keyframes float-dmg {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+  }
+
+  /* Clear button */
+  .clear-btn {
+    background: none;
+    border: 1px solid rgba(255,80,80,0.4);
+    color: #ff8888;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s;
+  }
+  .clear-btn:hover { background: rgba(255,80,80,0.15); }
+
+  /* Responsive */
+  @media(max-width: 700px) {
+    .game-area { grid-template-columns: 1fr; }
+    .potions-grid { grid-template-columns: repeat(4, 1fr); }
+    .cauldron-svg { width: 130px; height: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-wrapper">
+  <div class="header">
+    <h1>⚡ Harry's Potion Duel ⚡</h1>
+    <p>Brew magical potions and defeat Voldemort!</p>
+    <div class="score-badge">
+      🏆 Score: <span id="score">0</span>
+    </div>
+  </div>
+
+  <div class="message-bar" id="message">
+    🧙 Select potions from the shelf, brew them, then CAST your spell!
+  </div>
+
+  <div class="game-area">
+
+    <!-- LEFT: POTION SHELF -->
+    <div class="panel">
+      <h2>🧪 Potion Shelf</h2>
+      <div class="potions-grid" id="potionsGrid">
+        <!-- Potions injected by JS -->
+      </div>
+    </div>
+
+    <!-- MIDDLE: CAULDRON -->
+    <div class="panel cauldron-section" id="cauldronPanel">
+      <h2>🪄 Brewing Station</h2>
+
+      <div class="cauldron-container" id="cauldronContainer">
+        <svg class="cauldron-svg" viewBox="0 0 200 175" id="cauldronSVG">
+          <!-- Cauldron body -->
+          <ellipse cx="100" cy="80" rx="80" ry="20" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+          <!-- Liquid -->
+          <ellipse cx="100" cy="80" rx="73" ry="15" class="cauldron-liquid" id="cauldronLiquid" fill="#1a8a1a"/>
+          <!-- Inner cauldron walls -->
+          <path d="M 22 80 Q 10 120 30 145 Q 60 168 100 168 Q 140 168 170 145 Q 190 120 178 80 Z" fill="#2a2a2a" stroke="#555" stroke-width="2"/>
+          <!-- Liquid pool inside -->
+          <ellipse cx="100" cy="155" rx="60" ry="10" class="cauldron-liquid" id="cauldronLiquid2" fill="#1a8a1a" opacity="0.6"/>
+          <!-- Shine -->
+          <ellipse cx="75" cy="75" rx="20" ry="5" fill="rgba(255,255,255,0.1)"/>
+          <!-- Legs -->
+          <line x1="55" y1="160" x2="45" y2="175" stroke="#444" stroke-width="6" stroke-linecap="round"/>
+          <line x1="100" y1="165" x2="100" y2="175" stroke="#444" stroke-width="6" stroke-linecap="round"/>
+          <line x1="145" y1="160" x2="155" y2="175" stroke="#444" stroke-width="6" stroke-linecap="round"/>
+          <!-- Rim highlight -->
+          <ellipse cx="100" cy="80" rx="80" ry="20" fill="none" stroke="#666" stroke-width="3"/>
+          <!-- Handle left -->
+          <path d="M 22 80 Q 10 65 20 55 Q 30 45 40 55" fill="none" stroke="#666" stroke-width="5" stroke-linecap="round"/>
+          <!-- Handle right -->
+          <path d="M 178 80 Q 190 65 180 55 Q 170 45 160 55" fill="none" stroke="#666" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <div class="bubbles" id="bubbles"></div>
+      </div>
+
+      <div class="ingredients-list" id="ingredientsList">
+        <span style="color:#666; font-size:0.75rem;">← Click potions to add to cauldron</span>
+      </div>
+      <button class="clear-btn" onclick="clearCauldron()">✕ Empty Cauldron</button>
+
+      <button class="brew-btn" id="brewBtn" onclick="brewPotion()" disabled>
+        🔥 BREW SPELL!
+      </button>
+
+      <button class="cast-btn" id="castBtn" onclick="castSpell()" disabled>
+        ⚡ CAST SPELL!
+      </button>
+
+      <div class="spell-result" id="spellResult">
+        Your brewed spell will appear here...
+      </div>
+    </div>
+
+    <!-- RIGHT: VOLDEMORT -->
+    <div class="panel voldemort-section">
+      <h2>😈 Lord Voldemort</h2>
+
+      <div class="voldemort-hp">
+        <span style="font-size:0.8rem; color:#ff8888;">❤️ HP: <span id="voldHPText">100</span>/100</span>
+        <div class="bar-bg" style="width:100%; margin:4px 0;">
+          <div class="bar-fill" id="voldHPBar" style="width:100%; background: linear-gradient(90deg, #ff3333, #ff6600);"></div>
+        </div>
+      </div>
+
+      <div class="voldemort-display" id="voldemortDisplay">
+        <div class="voldemort-body" id="voldemortBody">🧙‍♂️</div>
+        <div class="effect-text" id="effectText"></div>
+      </div>
+
+      <div style="font-size:0.75rem; color:#cc88ff; margin-top:8px; line-height:1.5;">
+        <strong style="color:#ff8888;">Voldemort</strong> glares at you menacingly...<br>
+        <span id="voldQuote" style="color:#aaa; font-style:italic;">"There is no good and evil, there is only power..."</span>
+      </div>
+
+      <div class="known-spells" id="knownSpells">
+        <div style="font-family:'Cinzel',serif; color:#f5c842; font-size:0.75rem; margin-bottom:6px;">📖 Spell Book</div>
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="overlay" id="winOverlay">
+  <div style="font-size:5rem;">🏆</div>
+  <h2>You Defeated Voldemort!</h2>
+  <p>Amazing wizarding work! ⚡<br>Final Score: <strong id="finalScore" style="color:#f5c842;">0</strong></p>
+  <button class="restart-btn" onclick="restartGame()">Play Again! 🧙</button>
+</div>
+
+<!-- LOSE OVERLAY -->
+<div class="overlay" id="loseOverlay">
+  <div style="font-size:5rem;">💀</div>
+  <h2 style="color:#ff4444;">Voldemort Wins!</h2>
+  <p>Don't give up! Try again, brave wizard!<br>Score: <strong id="loseScore" style="color:#f5c842;">0</strong></p>
+  <button class="restart-btn" onclick="restartGame()">Try Again! ⚡</button>
+</div>
+
+<script>
+// ==========================================
+// GAME DATA
+// ==========================================
+const POTIONS = [
+  { id:'fire',    name:'Fiendfyre',   emoji:'🔴', desc:'Burns with fury',      color:'#ff4400', count:3 },
+  { id:'ice',     name:'Glacius',     emoji:'🔵', desc:'Freezes enemies',      color:'#44aaff', count:3 },
+  { id:'lightning', name:'Fulmen',   emoji:'⚡', desc:'Electric shock',       color:'#ffff00', count:3 },
+  { id:'shrink',  name:'Reducio',     emoji:'🟣', desc:'Shrinks target',       color:'#aa00ff', count:3 },
+  { id:'love',    name:'Amortentia',  emoji:'💖', desc:'Love confusion',       color:'#ff88bb', count:3 },
+  { id:'luck',    name:'Felix Felicis', emoji:'🟡', desc:'Liquid luck!',      color:'#ffdd00', count:3 },
+  { id:'sleep',   name:'Draught',     emoji:'🟢', desc:'Sleeping draught',     color:'#00cc66', count:2 },
+  { id:'chaos',   name:'Polyjuice',   emoji:'⚗️', desc:'Wild transformation',   color:'#88aaff', count:2 },
+];
+
+// Spells: defined by potion combos
+const SPELLS = [
+  {
+    id:'inferno', name:'INFERNO BLAST!',
+    needs:['fire','fire'], color:'#ff4400',
+    emoji:'🔥', damage:25,
+    effect:'burned', vfx:'🔥',
+    desc:'Double fire makes a huge explosion!',
+    quote:'Aaargh! THE HEAT!!'
+  },
+  {
+    id:'blizzard', name:'ARCTIC BLIZZARD!',
+    needs:['ice','ice'], color:'#44aaff',
+    emoji:'❄️', damage:20,
+    effect:'frozen', vfx:'❄️',
+    desc:'Double ice freezes Voldemort solid!',
+    quote:'I... c-c-can\'t move!'
+  },
+  {
+    id:'thunderstorm', name:'THUNDERBOLT!',
+    needs:['lightning','lightning'], color:'#ffff00',
+    emoji:'⚡', damage:22,
+    effect:'hit', vfx:'⚡',
+    desc:'Double lightning — massive strike!',
+    quote:'ARGH! Cursed lightning!'
+  },
+  {
+    id:'fireMissile', name:'FIRE MISSILE!',
+    needs:['fire','lightning'], color:'#ff8800',
+    emoji:'🚀', damage:18,
+    effect:'burned', vfx:'💥',
+    desc:'Fire + lightning = rocket spell!',
+    quote:'What... WHAT IS THAT?!'
+  },
+  {
+    id:'iceShock', name:'FROSTNING SHOCK!',
+    needs:['ice','lightning'], color:'#88ddff',
+    emoji:'🧊', damage:17,
+    effect:'frozen', vfx:'❄️⚡',
+    desc:'Ice and electricity — supercharged freeze!',
+    quote:'S-so c-cold!'
+  },
+  {
+    id:'lovebomb', name:'LOVE BOMB!',
+    needs:['love','love'], color:'#ff44aa',
+    emoji:'💖', damage:12,
+    effect:'dancing', vfx:'💖',
+    desc:'Voldemort dances uncontrollably!',
+    quote:'Why... am I... DANCING?!'
+  },
+  {
+    id:'miniVoldy', name:'TINY VOLDEMORT!',
+    needs:['shrink','shrink'], color:'#aa00ff',
+    emoji:'🔮', damage:15,
+    effect:'shrunk', vfx:'✨',
+    desc:'Voldemort becomes tiny!',
+    quote:'No... I am NOT small!!'
+  },
+  {
+    id:'luckyStrike', name:'LUCKY STRIKE!',
+    needs:['luck','fire'], color:'#ffdd00',
+    emoji:'🍀', damage:30,
+    effect:'hit', vfx:'🍀',
+    desc:'Luck + fire = critical hit!',
+    quote:'IMPOSSIBLE! How?!'
+  },
+  {
+    id:'confuseBlast', name:'CONFUNDO BLAST!',
+    needs:['love','lightning'], color:'#ff88ff',
+    emoji:'😵', damage:14,
+    effect:'confused', vfx:'💫',
+    desc:'Voldemort spins in confusion!',
+    quote:'Wha... who am I?!'
+  },
+  {
+    id:'superSleep', name:'ETERNAL SLUMBER!',
+    needs:['sleep','sleep'], color:'#00cc66',
+    emoji:'😴', damage:18,
+    effect:'hit', vfx:'💤',
+    desc:'Voldemort falls deeply asleep!',
+    quote:'Zzzz... no... zzzz...'
+  },
+  {
+    id:'chaosBlast', name:'CHAOS EXPLOSION!',
+    needs:['chaos','chaos'], color:'#8866ff',
+    emoji:'🌀', damage:28,
+    effect:'confused', vfx:'🌀',
+    desc:'Wild magic erupts everywhere!',
+    quote:'This is MADNESS!!'
+  },
+  {
+    id:'sleepFreeze', name:'FROSTY DREAM!',
+    needs:['sleep','ice'], color:'#aaeeff',
+    emoji:'🌙', damage:16,
+    effect:'frozen', vfx:'❄️💤',
+    desc:'Frozen solid AND asleep!',
+    quote:'So... drowsy... cold...'
+  },
+  {
+    id:'ultimateHex', name:'ULTIMATE HEX!',
+    needs:['fire','ice','lightning'], color:'#ffffff',
+    emoji:'🌟', damage:40,
+    effect:'hit', vfx:'🌟',
+    desc:'Triple combo — the ultimate spell!',
+    quote:'IMPOSSIBLE POWER!!'
+  },
+  {
+    id:'default', name:'BASIC JINX',
+    needs:[], color:'#9988ff',
+    emoji:'✨', damage:8,
+    effect:'hit', vfx:'✨',
+    desc:'A basic hex.',
+    quote:'Ouch, I suppose...'
+  }
+];
+
+const VOLD_QUOTES = [
+  '"There is no good and evil, only power..."',
+  '"I will destroy you, little wizard!"',
+  '"Crucio!"',
+  '"You dare challenge me?!"',
+  '"Avada Kedavra!"',
+  '"Your little potions cannot stop me!"',
+  '"I have waited 11 years for this moment!"',
+];
+
+// ==========================================
+// GAME STATE
+// ==========================================
+let state = {
+  potions: POTIONS.map(p => ({...p})),
+  cauldron: [],       // array of potion IDs in cauldron
+  brewedSpell: null,
+  voldHP: 100,
+  score: 0,
+  brewing: false,
+  gameOver: false,
+};
+
+// ==========================================
+// INIT
+// ==========================================
+function initGame() {
+  state.potions = POTIONS.map(p => ({...p}));
+  state.cauldron = [];
+  state.brewedSpell = null;
+  state.voldHP = 100;
+  state.score = 0;
+  state.brewing = false;
+  state.gameOver = false;
+
+  renderPotions();
+  renderSpellBook();
+  updateCauldronDisplay();
+  updateVoldDisplay();
+  updateButtons();
+  setMessage('🧙 Select potions from the shelf, brew them, then CAST your spell!');
+  document.getElementById('spellResult').textContent = 'Your brewed spell will appear here...';
+  startBubbles();
+}
+
+function renderPotions() {
+  const grid = document.getElementById('potionsGrid');
+  grid.innerHTML = '';
+  state.potions.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'potion-btn';
+    btn.id = `potion-${p.id}`;
+    btn.style.background = `radial-gradient(circle at 40% 40%, ${p.color}33, ${p.color}11)`;
+    btn.style.borderColor = p.count > 0 ? `${p.color}66` : 'rgba(100,100,100,0.3)';
+    btn.disabled = p.count === 0;
+    btn.innerHTML = `
+      <span class="potion-emoji">${p.emoji}</span>
+      <div class="potion-name">${p.name}</div>
+      <div class="potion-desc">${p.desc}</div>
+      <span class="potion-count">${p.count}</span>
+    `;
+    btn.onclick = () => addToCaldon(p.id);
+    grid.appendChild(btn);
+  });
+}
+
+function renderSpellBook() {
+  const el = document.getElementById('knownSpells');
+  const header = el.querySelector('div');
+  el.innerHTML = '';
+  el.appendChild(header);
+
+  const notable = SPELLS.filter(s => s.id !== 'default').slice(0, 6);
+  notable.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'spell-hint';
+    div.innerHTML = `${s.emoji} <strong style="color:${s.color}">${s.name}</strong><br>
+    <span style="color:#aaa">${s.needs.map(n => {
+      const p = POTIONS.find(x=>x.id===n); return p ? p.emoji : n;
+    }).join(' + ')}</span>`;
+    el.appendChild(div);
+  });
+}
+
+// ==========================================
+// ADD TO CAULDRON
+// ==========================================
+function addToCaldon(potionId) {
+  if (state.gameOver || state.brewing) return;
+  if (state.cauldron.length >= 3) {
+    setMessage('⚠️ Cauldron is full! Brew or clear it first.');
+    return;
+  }
+  const potion = state.potions.find(p => p.id === potionId);
+  if (!potion || potion.count === 0) return;
+
+  potion.count--;
+  state.cauldron.push(potionId);
+
+  // Visual feedback: animate potion flying to cauldron
+  const btn = document.getElementById(`potion-${potionId}`);
+  if (btn) {
+    btn.style.transform = 'scale(0.85)';
+    setTimeout(() => btn.style.transform = '', 200);
+  }
+
+  renderPotions();
+  updateCauldronDisplay();
+  updateButtons();
+  setMessage(`${potion.emoji} Added ${potion.name} to the cauldron!`);
+  spawnParticles(btn, potion.color);
+}
+
+function updateCauldronDisplay() {
+  const list = document.getElementById('ingredientsList');
+  if (state.cauldron.length === 0) {
+    list.innerHTML = '<span style="color:#666; font-size:0.75rem;">← Click potions to add to cauldron</span>';
+    setCauldronColor('#1a8a1a');
+    return;
+  }
+
+  list.innerHTML = '';
+  state.cauldron.forEach(id => {
+    const p = POTIONS.find(x => x.id === id);
+    if (p) {
+      const tag = document.createElement('span');
+      tag.className = 'ingredient-tag';
+      tag.style.borderColor = `${p.color}99`;
+      tag.style.color = p.color;
+      tag.textContent = `${p.emoji} ${p.name}`;
+      list.appendChild(tag);
+    }
+  });
+
+  // Set cauldron color based on ingredients
+  const colors = state.cauldron.map(id => POTIONS.find(x=>x.id===id)?.color || '#1a8a1a');
+  const mixed = mixColors(colors);
+  setCauldronColor(mixed);
+}
+
+function setCauldronColor(color) {
+  document.getElementById('cauldronLiquid').style.fill = color;
+  document.getElementById('cauldronLiquid2').style.fill = color;
+  document.getElementById('cauldronSVG').style.filter = `drop-shadow(0 0 15px ${color}88)`;
+}
+
+function mixColors(hexColors) {
+  if (hexColors.length === 0) return '#1a8a1a';
+  if (hexColors.length === 1) return hexColors[0];
+  let r=0,g=0,b=0;
+  hexColors.forEach(h => {
+    const c = parseInt(h.replace('#',''),16);
+    r += (c>>16)&255; g += (c>>8)&255; b += c&255;
+  });
+  const n = hexColors.length;
+  return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+}
+
+function clearCauldron() {
+  if (state.gameOver) return;
+  // Return potions
+  state.cauldron.forEach(id => {
+    const p = state.potions.find(x => x.id === id);
+    if (p) p.count++;
+  });
+  state.cauldron = [];
+  state.brewedSpell = null;
+  renderPotions();
+  updateCauldronDisplay();
+  updateButtons();
+  document.getElementById('spellResult').textContent = 'Your brewed spell will appear here...';
+  setMessage('Cauldron cleared!');
+}
+
+// ==========================================
+// BREW
+// ==========================================
+function brewPotion() {
+  if (state.cauldron.length === 0 || state.brewing || state.gameOver) return;
+  state.brewing = true;
+  updateButtons();
+
+  const container = document.getElementById('cauldronContainer');
+  container.classList.add('brewing');
+  setMessage('🔥 Brewing...');
+
+  // Intensify bubbles
+  document.querySelectorAll('.bubble').forEach(b => {
+    b.style.animationDuration = '0.5s';
+  });
+
+  setTimeout(() => {
+    container.classList.remove('brewing');
+    document.querySelectorAll('.bubble').forEach(b => {
+      b.style.animationDuration = '';
+    });
+
+    // Identify spell
+    state.brewedSpell = identifySpell(state.cauldron);
+
+    const spellEl = document.getElementById('spellResult');
+    spellEl.style.color = state.brewedSpell.color;
+    spellEl.innerHTML = `${state.brewedSpell.emoji} <strong>${state.brewedSpell.name}</strong><br><span style="color:#aaa; font-size:0.7rem">${state.brewedSpell.desc}</span>`;
+
+    setMessage(`✨ Spell brewed: ${state.brewedSpell.name}! Now CAST it!`);
+
+    // Flash cauldron
+    setCauldronColor(state.brewedSpell.color);
+
+    state.brewing = false;
+    updateButtons();
+  }, 1800);
+}
+
+function identifySpell(cauldronIds) {
+  // Sort ingredient list for matching
+  const sorted = [...cauldronIds].sort();
+
+  for (const spell of SPELLS) {
+    if (spell.id === 'default') continue;
+    const spellNeeds = [...spell.needs].sort();
+    if (spellNeeds.length !== sorted.length) continue;
+    if (spellNeeds.every((v,i) => v === sorted[i])) {
+      return spell;
+    }
+  }
+  // Default
+  return SPELLS.find(s => s.id === 'default');
+}
+
+// ==========================================
+// CAST SPELL
+// ==========================================
+function castSpell() {
+  if (!state.brewedSpell || state.gameOver || state.brewing) return;
+
+  const spell = state.brewedSpell;
+  const dmg = spell.damage + Math.floor(Math.random() * 6);
+
+  state.voldHP = Math.max(0, state.voldHP - dmg);
+  state.score += dmg * 10;
+
+  // Visual effects on Voldemort
+  applyVoldEffect(spell.effect, spell.vfx, spell.color);
+  showFloatingDamage(dmg, spell.color);
+  updateVoldDisplay();
+
+  // Update score
+  document.getElementById('score').textContent = state.score;
+
+  // Quote
+  const voldEl = document.getElementById('voldQuote');
+  voldEl.textContent = spell.quote;
+
+  setMessage(`${spell.emoji} ${spell.name} hit Voldemort for ${dmg} damage!`);
+
+  // Reset
+  state.cauldron = [];
+  state.brewedSpell = null;
+  renderPotions();
+  updateCauldronDisplay();
+  updateButtons();
+  document.getElementById('spellResult').textContent = 'Your brewed spell will appear here...';
+
+  setTimeout(() => {
+    if (state.voldHP <= 0) {
+      winGame();
+    } else {
+      // Voldemort strikes back randomly
+      voldemortCounterAttack();
+    }
+  }, 1200);
+}
+
+function voldemortCounterAttack() {
+  if (state.gameOver) return;
+  const quotes = [
+    '⚡ Voldemort fires back! -5 HP!',
+    '💀 Voldemort casts Crucio! -8 HP!',
+    '🌑 Voldemort summons darkness! -6 HP!',
+    '😈 Voldemort laughs menacingly... no damage!',
+    '🐍 Nagini hisses at you! -4 HP!',
+  ];
+
+  const attacks = [
+    { msg: '⚡ Voldemort fires back! -5 HP!', dmg: 5 },
+    { msg: '💀 Voldemort casts Crucio! -8 HP!', dmg: 8 },
+    { msg: '🌑 Voldemort summons darkness! -6 HP!', dmg: 6 },
+    { msg: '😈 Voldemort laughs menacingly... no damage!', dmg: 0 },
+    { msg: '🐍 Nagini hisses at you! -4 HP!', dmg: 4 },
+  ];
+
+  const atk = attacks[Math.floor(Math.random() * attacks.length)];
+  if (atk.dmg > 0) {
+    setMessage(atk.msg);
+    // Just penalize score slightly
+    state.score = Math.max(0, state.score - atk.dmg * 5);
+    document.getElementById('score').textContent = state.score;
+
+    // Shake screen briefly
+    document.body.style.transition = 'none';
+    document.body.style.transform = 'translateX(-5px)';
+    setTimeout(() => {
+      document.body.style.transform = 'translateX(5px)';
+      setTimeout(() => {
+        document.body.style.transform = '';
+      }, 100);
+    }, 100);
+  } else {
+    setMessage(atk.msg);
+  }
+}
+
+function applyVoldEffect(effect, vfx, color) {
+  const display = document.getElementById('voldemortDisplay');
+  const body = document.getElementById('voldemortBody');
+
+  // Remove all effect classes
+  display.className = 'voldemort-display';
+  void display.offsetWidth; // Force reflow
+  display.classList.add(effect);
+
+  // VFX text float
+  const effectEl = document.getElementById('effectText');
+  effectEl.textContent = vfx;
+  effectEl.style.color = color;
+  effectEl.style.animation = 'none';
+  void effectEl.offsetWidth;
+  effectEl.style.animation = 'float-up 1.5s ease forwards';
+
+  // Revert after 2s
+  setTimeout(() => {
+    display.className = 'voldemort-display';
+  }, 2000);
+}
+
+function showFloatingDamage(dmg, color) {
+  const display = document.getElementById('voldemortDisplay');
+  const rect = display.getBoundingClientRect();
+
+  const el = document.createElement('div');
+  el.className = 'floating-dmg';
+  el.textContent = `-${dmg}`;
+  el.style.color = color;
+  el.style.left = `${rect.left + rect.width/2 - 30}px`;
+  el.style.top = `${rect.top + rect.height/2}px`;
+  el.style.position = 'fixed';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+function updateVoldDisplay() {
+  const pct = Math.max(0, state.voldHP);
+  document.getElementById('voldHPText').textContent = pct;
+  document.getElementById('voldHPBar').style.width = pct + '%';
+
+  // Change Voldemort face based on HP
+  const body = document.getElementById('voldemortBody');
+  if (pct > 66) body.textContent = '🧙‍♂️';
+  else if (pct > 33) body.textContent = '😤';
+  else if (pct > 10) body.textContent = '😣';
+  else body.textContent = '😵';
+
+  const quote = document.getElementById('voldQuote');
+  if (pct <= 0) quote.textContent = '"Noooo... I cannot be defeated!!"';
+  else if (pct <= 30) quote.textContent = '"You... you are stronger than I thought..."';
+  else if (pct <= 60) quote.textContent = '"You\'ll pay for this!"';
+}
+
+function updateButtons() {
+  const brewBtn = document.getElementById('brewBtn');
+  const castBtn = document.getElementById('castBtn');
+
+  brewBtn.disabled = state.cauldron.length === 0 || state.brewing || !!state.brewedSpell;
+  castBtn.disabled = !state.brewedSpell || state.brewing;
+}
+
+// ==========================================
+// WIN/LOSE
+// ==========================================
+function winGame() {
+  state.gameOver = true;
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('winOverlay').classList.add('active');
+  launchConfetti();
+}
+
+function restartGame() {
+  document.getElementById('winOverlay').classList.remove('active');
+  document.getElementById('loseOverlay').classList.remove('active');
+  initGame();
+}
+
+// ==========================================
+// PARTICLES & FX
+// ==========================================
+function spawnParticles(btn, color) {
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 6 + Math.random() * 8;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 60;
+    p.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      background: ${color};
+      left: ${rect.left + rect.width/2 - size/2}px;
+      top: ${rect.top + rect.height/2 - size/2}px;
+      --tx: ${Math.cos(angle)*dist}px;
+      --ty: ${Math.sin(angle)*dist}px;
+      box-shadow: 0 0 6px ${color};
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
+  }
+}
+
+function launchConfetti() {
+  const colors = ['#f5c842','#ff4444','#44aaff','#aa44ff','#44ff88','#ff88aa'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 8 + Math.random() * 12;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const startX = Math.random() * window.innerWidth;
+      const tx = (Math.random() - 0.5) * 300;
+      const ty = 200 + Math.random() * 400;
+      p.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        background: ${color};
+        left: ${startX}px; top: -10px;
+        --tx: ${tx}px; --ty: ${ty}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: 2s;
+      `;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2200);
+    }, i * 50);
+  }
+}
+
+// ==========================================
+// BUBBLES
+// ==========================================
+function startBubbles() {
+  const container = document.getElementById('bubbles');
+  container.innerHTML = '';
+  const colors = ['#00ff88','#88aaff','#ffff00','#ff88aa','#aaffaa'];
+  for (let i = 0; i < 8; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 6 + Math.random() * 12;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    b.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      background: ${color}88;
+      border: 1px solid ${color};
+      left: ${15 + Math.random() * 70}%;
+      top: ${30 + Math.random() * 40}px;
+      animation-delay: ${Math.random() * 2}s;
+      animation-duration: ${1.5 + Math.random() * 1.5}s;
+      box-shadow: 0 0 4px ${color};
+    `;
+    container.appendChild(b);
+  }
+}
+
+// ==========================================
+// HELPERS
+// ==========================================
+function setMessage(msg) {
+  document.getElementById('message').innerHTML = msg;
+}
+
+// ==========================================
+// START
+// ==========================================
+initGame();
+</script>
+</body>
+</html>
